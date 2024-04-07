@@ -16,6 +16,14 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
         // 継承元クラスのコンストラクタを呼ぶ
         super();
         setSecurityContextRepository(securityContextRepository);
+        // 成功
+        setAuthenticationSuccessHandler((req, res, auth) -> {
+            res.setStatus(HttpServletResponse.SC_OK);
+        });
+        // 失敗
+        setAuthenticationFailureHandler((req, res, exception) -> {
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        });
     }
 
     @Override

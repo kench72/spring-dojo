@@ -1,4 +1,4 @@
-package com.example.blog.web.conatroller.article;
+package com.example.blog.web.controller.article;
 
 import com.example.blog.service.article.ArticleEntity;
 

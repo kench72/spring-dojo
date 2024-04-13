@@ -1,9 +1,9 @@
 package com.example.blog.config;
 
+import com.example.blog.web.filter.CsrfCookieFilter;
 import com.example.blog.web.filter.JsonUsernamePasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -14,8 +14,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +31,14 @@ public class SecurityConfig {
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
     ) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
+               // .csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
+                .csrf((csrf) -> csrf
+                        // ① Cookei経由でCsrfトークンを渡して
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        // ② Httpヘッダー情報にセットされているCsrfトークンを確認する
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                )
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterAt(
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository
@@ -39,8 +49,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("articles/**").permitAll()
                         .anyRequest().authenticated()
-                )
-                .formLogin(Customizer.withDefaults());
+                );
+                // お試しで作成していたGET /loginは廃止（→formLoginも不要）
+                //.formLogin(Customizer.withDefaults());
 
         return http.build();
     }

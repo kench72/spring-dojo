@@ -47,6 +47,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("articles/**").permitAll()
                         .anyRequest().authenticated()
                 );

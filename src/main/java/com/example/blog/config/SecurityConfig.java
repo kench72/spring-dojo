@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                // Filterの差し替え（UsernamePasswordAuthenticationFilterの替わりにJsonUsernamePasswordAuthenticationFilter）
                 .addFilterAt(
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository

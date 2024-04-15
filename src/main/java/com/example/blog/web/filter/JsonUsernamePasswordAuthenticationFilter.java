@@ -16,7 +16,7 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
     public JsonUsernamePasswordAuthenticationFilter(
             SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
-    ){
+    ) {
         // 継承元クラスのコンストラクタを呼ぶ
         super();
         setSecurityContextRepository(securityContextRepository);
@@ -33,10 +33,14 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws AuthenticationException {
+
         return UsernamePasswordAuthenticationToken.authenticated(
                 "dummy-user"
-                ,"dummy-password"
+                , "dummy-password"
                 , List.of()
         );
     }

@@ -1,7 +1,10 @@
 package com.example.blog.web.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -9,19 +12,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 
-import java.util.List;
+import java.io.IOException;
 
 public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    private final ObjectMapper objectMapper;
+
     public JsonUsernamePasswordAuthenticationFilter(
-            SecurityContextRepository securityContextRepository
-            , SessionAuthenticationStrategy sessionAuthenticationStrategy
-    ){
+            SecurityContextRepository securityContextRepository,
+            SessionAuthenticationStrategy sessionAuthenticationStrategy,
+            AuthenticationManager authenticationManager,
+            ObjectMapper objectMapper
+    ) {
+
         // 継承元クラスのコンストラクタを呼ぶ
         super();
+        // ObjectMapper初期化
+        this.objectMapper = objectMapper;
+        // SecurityContextRepository(Session格納先)は全体で共通のものを利用する
         setSecurityContextRepository(securityContextRepository);
         // JSESSIONIDを都度生成：セッション固定化攻撃への対策
         setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+        // AuthenticationManger
+        setAuthenticationManager(authenticationManager);
         // 成功
         setAuthenticationSuccessHandler((req, res, auth) -> {
             res.setStatus(HttpServletResponse.SC_OK);
@@ -34,10 +47,27 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        return UsernamePasswordAuthenticationToken.authenticated(
-                "dummy-user"
-                ,"dummy-password"
-                , List.of()
-        );
+
+        LoginRequest jsonRequest;
+        try {
+            jsonRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+        } catch (IOException e) {
+            //throw new RuntimeException(e);
+            throw new AuthenticationServiceException("failed to read request as json", e);
+        }
+
+        // condition ? yes : no
+        var username = jsonRequest.username != null ? jsonRequest.username : "";
+        var password = jsonRequest.password != null ? jsonRequest.password : "";
+
+        var authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+        // Allow subclasses to set the "details" property
+        setDetails(request, authRequest);
+        return this.getAuthenticationManager().authenticate(authRequest);
+
+        ///return UsernamePasswordAuthenticationToken.authenticated("dummy-user", "dummy-password", List.of());
+    }
+
+    private record LoginRequest(String username, String password) {
     }
 }

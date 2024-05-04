@@ -1,4 +1,4 @@
-package com.example.blog.web;
+package com.example.blog.web.controller;
 
 
 import org.springframework.http.ResponseEntity;

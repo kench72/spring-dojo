@@ -62,13 +62,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/").permitAll()
                         .requestMatchers("articles/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .anyRequest().authenticated()
                 )
                 // 認証エラーが発生した際は403エラーを返却。
                 // デフォルトの挙動がLoginFormに誘導する挙動となっているので修正。
                 .exceptionHandling(customizer -> customizer.accessDeniedHandler((req, res, ex) -> {
                     res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                }))
+                .logout(logout -> logout.logoutSuccessHandler((req, res, auth) -> {
+                    res.setStatus(HttpServletResponse.SC_OK);
                 }));
         // お試しで作成していたGET /loginは廃止（→formLoginも不要）
         //.formLogin(Customizer.withDefaults());

@@ -49,7 +49,7 @@ public class RegistrationAndLoginIT {
         assertThat(xsrfTokenCookieOpt)
                 .isPresent()
                 .hasValueSatisfying(
-                        xsrfTokenCookie-> assertThat(xsrfTokenCookie.getValue()).isNotBlank()
+                        xsrfTokenCookie -> assertThat(xsrfTokenCookie.getValue()).isNotBlank()
                 );
     }
 

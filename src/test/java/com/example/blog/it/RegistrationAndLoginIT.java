@@ -25,6 +25,10 @@ public class RegistrationAndLoginIT {
 
     @Test
     public void integrationTest() {
+        String xsrfToken = getRoot();
+    }
+
+    private String getRoot() {
         // ## Arrange ##
 
         // ## Act ##
@@ -51,6 +55,8 @@ public class RegistrationAndLoginIT {
                 .hasValueSatisfying(
                         xsrfTokenCookie -> assertThat(xsrfTokenCookie.getValue()).isNotBlank()
                 );
+
+        return xsrfTokenCookieOpt.get().getValue();
     }
 
 }

@@ -15,6 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RegistrationAndLoginIT {
 
+    private final String TEST_USERNAME = "user1";
+
+    private final String TEST_PASSWORD = "password1";
+
     // このテストを起動した際、
     // @SpringBootTestアノテーションを記述しているので、
     // Springアプリケーションが起動される ⇒ その時DIコンテナも起動される。
@@ -64,12 +68,13 @@ public class RegistrationAndLoginIT {
     private void register(String xsrfToken) {
 
         // ## Arrange
-        var bodyJson = """
-                {
-                    "username": "user1",
-                    "password": "password1"
-                }
-                """;
+        var bodyJson = String.format("""
+                        {
+                            "username": "%s",
+                            "password": "%s"
+                        }
+                        """,
+                TEST_USERNAME, TEST_PASSWORD);
 
         // ## Act
         var responseSpec = webTestClient

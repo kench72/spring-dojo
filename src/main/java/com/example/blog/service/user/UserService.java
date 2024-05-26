@@ -20,4 +20,9 @@ public class UserService {
 
         userRepository.insert(username, encodedPassword, true);
     }
+
+    @Transactional
+    public void delete(String username) {
+        userRepository.deleteByUsername(username);
+    }
 }

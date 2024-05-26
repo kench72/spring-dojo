@@ -1,5 +1,8 @@
 package com.example.blog.it;
 
+import com.example.blog.service.user.UserService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +30,19 @@ public class RegistrationAndLoginIT {
     // そして、JUnitのランナー（テストをたくさん実行してくれる奴）が@Testの付いたメソッドを見つけて実行してくれる。
     @Autowired
     private WebTestClient webTestClient;
+
+    @Autowired
+    private UserService userService;
+
+    @BeforeEach
+    public void beforeEach(){
+        userService.delete(TEST_USERNAME);
+    }
+
+    @AfterEach
+    public void afterEach(){
+        userService.delete(TEST_USERNAME);
+    }
 
     @Test
     public void integrationTest() {

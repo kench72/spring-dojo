@@ -14,10 +14,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void register(String username, String rawpassword) {
+    public void register(String username, String rawPassword) {
 
-        var encodedPassword = passwordEncoder.encode(rawpassword);
+        var encodedPassword = passwordEncoder.encode(rawPassword);
 
         userRepository.insert(username, encodedPassword, true);
+    }
+
+    @Transactional
+    public void delete(String username) {
+        userRepository.deleteByUsername(username);
     }
 }

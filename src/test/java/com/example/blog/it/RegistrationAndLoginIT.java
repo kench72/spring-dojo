@@ -60,6 +60,8 @@ public class RegistrationAndLoginIT {
         // ヘッダーにX-XSRF-TOKENがない
         loginFailure_NoXXSRFTokenInHeader(xsrfToken);
 
+        // Tokenが違う
+        loginFailure_DifferentToken(xsrfToken);
 
         // ユーザー名がＤＢに存在する
         // パスワードがＤＢに保存されているパスワードと違う
@@ -211,5 +213,31 @@ public class RegistrationAndLoginIT {
         // ## Assert
         responseSpec
                 .expectStatus().isForbidden();
+    }
+
+    private void loginFailure_DifferentToken(String xsrfToken) {
+
+        // ## Arrange
+        var bodyJson = String.format("""
+                        {
+                            "username": "%s",
+                            "password": "%s"
+                        }
+                        """,
+                TEST_USERNAME, TEST_PASSWORD);
+
+        // ## Act
+        var responseSpec = webTestClient
+                .post()
+                .uri("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookie("XSRF-TOKEN", xsrfToken)
+                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .header("X-XSRF-TOKEN", xsrfToken + "_invalid")
+                .bodyValue(bodyJson)
+                .exchange();
+
+        // ## Assert
+        responseSpec.expectStatus().isForbidden();
     }
 }

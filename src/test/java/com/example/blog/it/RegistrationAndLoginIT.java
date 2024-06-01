@@ -18,9 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RegistrationAndLoginIT {
 
-    private final String TEST_USERNAME = "user1";
+    private static final String TEST_USERNAME = "user1";
 
-    private final String TEST_PASSWORD = "password1";
+    private static final String TEST_PASSWORD = "password1";
+
+    private static final String DUMMY_SESSION_ID = "session_id_1";
 
     // このテストを起動した際、
     // @SpringBootTestアノテーションを記述しているので、
@@ -35,12 +37,12 @@ public class RegistrationAndLoginIT {
     private UserService userService;
 
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() {
         userService.delete(TEST_USERNAME);
     }
 
     @AfterEach
-    public void afterEach(){
+    public void afterEach() {
         userService.delete(TEST_USERNAME);
     }
 
@@ -48,6 +50,18 @@ public class RegistrationAndLoginIT {
     public void integrationTest() {
         String xsrfToken = getRoot();
         register(xsrfToken);
+
+        //ログイン成功
+        loginSuccess(xsrfToken);
+
+        // CookieにXSFT-TOKENがない
+        loginFailure_NoXSRFTokenInCookie(xsrfToken);
+
+        // ユーザー名がＤＢに存在する
+        // パスワードがＤＢに保存されているパスワードと違う
+        // CookieのXSRF-TOKENとヘッダーのX-XSRF-TOKENの値が一致する
+        // → 200 OKが返却される
+        // → レスポンスに Set-Cookie: JSESSIONIDが返却される
     }
 
     private String getRoot() {
@@ -105,5 +119,64 @@ public class RegistrationAndLoginIT {
         // ## Assert
         responseSpec.expectStatus().isCreated();
 
+    }
+
+    private void loginSuccess(String xsrfToken) {
+
+        // ## Arrange
+        var bodyJson = String.format("""
+                        {
+                            "username": "%s",
+                            "password": "%s"
+                        }
+                        """,
+                TEST_USERNAME, TEST_PASSWORD);
+
+        // ## Act
+        var responseSpec = webTestClient
+                .post()
+                .uri("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookie("XSRF-TOKEN", xsrfToken)
+                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .header("X-XSRF-TOKEN", xsrfToken)
+                .bodyValue(bodyJson)
+                .exchange();
+
+        // ## Assert
+        responseSpec
+                .expectStatus().isOk()
+                .expectCookie().value("JSESSIONID", v -> assertThat(v)
+                        .isNotBlank()
+                        .isNotEqualTo(DUMMY_SESSION_ID)
+                );
+    }
+
+    private void loginFailure_NoXSRFTokenInCookie(String xsrfToken) {
+
+        // ## Arrange
+        var bodyJson = String.format("""
+                        {
+                            "username": "%s",
+                            "password": "%s"
+                        }
+                        """,
+                TEST_USERNAME, TEST_PASSWORD);
+
+        // ## Act
+        var responseSpec = webTestClient
+                .post()
+                .uri("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                /*
+                .cookie("XSRF-TOKEN", xsrfToken)
+                 */
+                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .header("X-XSRF-TOKEN", xsrfToken)
+                .bodyValue(bodyJson)
+                .exchange();
+
+        // ## Assert
+        responseSpec.expectStatus().isForbidden();
     }
 }

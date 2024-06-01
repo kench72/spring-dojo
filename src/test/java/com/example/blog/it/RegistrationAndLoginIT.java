@@ -51,9 +51,7 @@ public class RegistrationAndLoginIT {
         String xsrfToken = getRoot();
         register(xsrfToken);
 
-        //ログイン成功
-        loginSuccess(xsrfToken);
-
+        // ログイン失敗
         // CookieにXSFT-TOKENがない
         loginFailure_NoXSRFTokenInCookie(xsrfToken);
 
@@ -67,6 +65,10 @@ public class RegistrationAndLoginIT {
         loginFailure_GivenUsernameDoesNotExistInDatabase(xsrfToken);
 
         // パスワードがＤＢに保存されているパスワードと違う
+        loginFailure_GivenPasswordIsNotSameAsPasswordInDatabase(xsrfToken);
+
+        // ログイン成功
+        loginSuccess(xsrfToken);
         // CookieのXSRF-TOKENとヘッダーのX-XSRF-TOKENの値が一致する
         // → 200 OKが返却される
         // → レスポンスに Set-Cookie: JSESSIONIDが返却される
@@ -253,6 +255,32 @@ public class RegistrationAndLoginIT {
                         }
                         """,
                 TEST_USERNAME + "_invalid", TEST_PASSWORD);
+
+        // ## Act
+        var responseSpec = webTestClient
+                .post()
+                .uri("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookie("XSRF-TOKEN", xsrfToken)
+                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .header("X-XSRF-TOKEN", xsrfToken)
+                .bodyValue(bodyJson)
+                .exchange();
+
+        // ## Assert
+        responseSpec.expectStatus().isUnauthorized();
+    }
+
+    private void loginFailure_GivenPasswordIsNotSameAsPasswordInDatabase(String xsrfToken) {
+
+        // ## Arrange
+        var bodyJson = String.format("""
+                        {
+                            "username": "%s",
+                            "password": "%s"
+                        }
+                        """,
+                TEST_USERNAME, TEST_PASSWORD + "_invalid");
 
         // ## Act
         var responseSpec = webTestClient

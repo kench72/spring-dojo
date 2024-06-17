@@ -24,6 +24,8 @@ public class RegistrationAndLoginIT {
 
     private static final String DUMMY_SESSION_ID = "session_id_1";
 
+    private static final String SESSION_COOKIE_NAME = "SESSION";
+
     // このテストを起動した際、
     // @SpringBootTestアノテーションを記述しているので、
     // Springアプリケーションが起動される ⇒ その時DIコンテナも起動される。
@@ -148,7 +150,7 @@ public class RegistrationAndLoginIT {
                 .uri("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("XSRF-TOKEN", xsrfToken)
-                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .cookie(SESSION_COOKIE_NAME, DUMMY_SESSION_ID)
                 .header("X-XSRF-TOKEN", xsrfToken)
                 .bodyValue(bodyJson)
                 .exchange();
@@ -156,7 +158,7 @@ public class RegistrationAndLoginIT {
         // ## Assert
         responseSpec
                 .expectStatus().isOk()
-                .expectCookie().value("JSESSIONID", v -> assertThat(v)
+                .expectCookie().value(SESSION_COOKIE_NAME, v -> assertThat(v)
                         .isNotBlank()
                         .isNotEqualTo(DUMMY_SESSION_ID)
                 );
@@ -181,7 +183,7 @@ public class RegistrationAndLoginIT {
                 /*
                 .cookie("XSRF-TOKEN", xsrfToken)
                  */
-                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .cookie(SESSION_COOKIE_NAME, DUMMY_SESSION_ID)
                 .header("X-XSRF-TOKEN", xsrfToken)
                 .bodyValue(bodyJson)
                 .exchange();
@@ -207,7 +209,7 @@ public class RegistrationAndLoginIT {
                 .uri("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("XSRF-TOKEN", xsrfToken)
-                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .cookie(SESSION_COOKIE_NAME, DUMMY_SESSION_ID)
                 /*
                 .header("X-XSRF-TOKEN", xsrfToken)
                  */
@@ -236,7 +238,7 @@ public class RegistrationAndLoginIT {
                 .uri("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("XSRF-TOKEN", xsrfToken)
-                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .cookie(SESSION_COOKIE_NAME, DUMMY_SESSION_ID)
                 .header("X-XSRF-TOKEN", xsrfToken + "_invalid")
                 .bodyValue(bodyJson)
                 .exchange();
@@ -262,7 +264,7 @@ public class RegistrationAndLoginIT {
                 .uri("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("XSRF-TOKEN", xsrfToken)
-                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .cookie(SESSION_COOKIE_NAME, DUMMY_SESSION_ID)
                 .header("X-XSRF-TOKEN", xsrfToken)
                 .bodyValue(bodyJson)
                 .exchange();
@@ -288,7 +290,7 @@ public class RegistrationAndLoginIT {
                 .uri("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("XSRF-TOKEN", xsrfToken)
-                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .cookie(SESSION_COOKIE_NAME, DUMMY_SESSION_ID)
                 .header("X-XSRF-TOKEN", xsrfToken)
                 .bodyValue(bodyJson)
                 .exchange();

@@ -11,8 +11,7 @@ VALUES ('タイトルです1', '1本文です。')
      , ('タイトルです3', '3本文です。')
 ;
 
-DELETE
-FROM users;
+DELETE FROM users;
 
 -- password is "password" for all users
 INSERT INTO users(username, password, enabled)

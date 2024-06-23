@@ -1,3 +1,5 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
 DELETE
 FROM articles;
 
@@ -12,8 +14,9 @@ VALUES ('タイトルです1', '1本文です。')
 DELETE
 FROM users;
 
+-- password is "password" for all users
 INSERT INTO users(username, password, enabled)
-VALUES ('user1', 'password', true)
-     , ('user2', 'password', true)
-     , ('user3', 'password', true)
+VALUES ('user1', '$2a$10$jeD56WgR/b1/6uT4Ex.e3uGRcXjuVxGWvsVfMdChOJm/yX68agIF.', true)
+     , ('user2', '$2a$10$5ssPPLpTmr55IO1LyTemC.sU319RHZ6Vz8rwiYHxTIUhgwQtJDusK', true)
+     , ('user3', '$2a$10$8fZBKIsMBQiXZ5lfAwom3OEFgtYr0BMl1QBKOxldb2fNb2/j/vEJe', true)
 ;

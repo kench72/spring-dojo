@@ -66,6 +66,21 @@ class ArticleRestControllerMockTest {
                 .andExpect(jsonPath("$.content").value(expected.content()))
                 .andExpect(jsonPath("$.createdAt").value(expected.createdAt().toString()))
                 .andExpect(jsonPath("$.updatedAt").value(expected.updatedAt().toString()))
-                ;
+        ;
+    }
+
+    @Test
+    @DisplayName("GET /articles/{id}: 指定されたIDの記事が存在しないとき、404 NotFound")
+    public void getArticlesById_404NotFound() throws Exception {
+
+        // ## Arrange ##
+        var expectedId = 999;
+        when(mockArticleService.findById(expectedId)).thenReturn(Optional.empty());
+
+        // ## Act ##
+        var actual = mockMvc.perform(get("/articles/{id}", expectedId));
+
+        // ## Assert ##
+        actual.andExpect(status().isNotFound());
     }
 }

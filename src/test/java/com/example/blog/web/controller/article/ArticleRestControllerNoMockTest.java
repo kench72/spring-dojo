@@ -49,4 +49,15 @@ class ArticleRestControllerNoMockTest {
                 .andExpect(jsonPath("$.updatedAt").value("2023-02-01T03:04:05"));
     }
 
+    @Test
+    @DisplayName("GET /articles/{id}: 指定されたIDの記事が存在しないとき、404 NotFound をレスポンスする")
+    public void getArticle_return404() throws Exception {
+        // ## Arrange
+
+        // ## Act
+        var actual = mockMvc.perform(get("/articles/{id}", -999));
+
+        // ## Assert
+        actual.andExpect(status().isNotFound());
+    }
 }

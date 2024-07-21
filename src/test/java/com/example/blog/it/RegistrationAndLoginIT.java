@@ -50,7 +50,7 @@ public class RegistrationAndLoginIT {
 
     @Test
     public void integrationTest() {
-        String xsrfToken = getRoot();
+        String xsrfToken = getCsrfCookie();
         register(xsrfToken);
 
         // ログイン失敗
@@ -76,11 +76,11 @@ public class RegistrationAndLoginIT {
         // → レスポンスに Set-Cookie: JSESSIONIDが返却される
     }
 
-    private String getRoot() {
+    private String getCsrfCookie() {
         // ## Arrange ##
 
         // ## Act ##
-        var responseSpec = webTestClient.get().uri("/").exchange();
+        var responseSpec = webTestClient.get().uri("/csrf-cookie").exchange();
 
         // ## Assert ##
         // webFluxが提供する検証処理（assertメソッドに相当）。

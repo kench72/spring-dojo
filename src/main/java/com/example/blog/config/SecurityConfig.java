@@ -60,7 +60,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/csrf-cookie").permitAll()
                         .requestMatchers("/articles/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .anyRequest().authenticated()
